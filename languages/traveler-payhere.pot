@@ -1,0 +1,52 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Traveler\n"
+"POT-Creation-Date: 2019-05-13 14:18+0700\n"
+"PO-Revision-Date: 2017-04-15 08:58+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=n!=1;\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;__(;esc_html__\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: languages\n"
+"X-Poedit-SearchPath-1: .\n"
+"X-Poedit-SearchPathExcluded-0: languages\n"
+
+#: inc/payhere.php:40
+msgid "URL"
+msgstr ""
+
+#: inc/payhere.php:43
+msgid "Information connect or Environment test. Url for real: https://onepay.vn/vpcpay/vpcpay.op, Url for test: https://mtf.onepay.vn/vpcpay/vpcpay.op"
+msgstr ""
+
+#: inc/payhere.php:48 inc/payhere.php:51
+msgid "Merchant ID"
+msgstr ""
+
+#: inc/payhere.php:56 inc/payhere.php:59
+msgid "Merchant Access Code"
+msgstr ""
+
+#: inc/payhere.php:64 inc/payhere.php:67
+msgid "Security Secret"
+msgstr ""
+
+#: inc/payhere.php:84
+msgid "This payment only supports VND currency"
+msgstr ""
+
+#: inc/payhere.php:282
+msgid "Payhere"
+msgstr ""
+
+#: views/payhere.php:2
+msgid "Take payments via Payhere payment (redirect method)."
+msgstr ""
