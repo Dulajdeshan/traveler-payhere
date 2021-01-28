@@ -24,7 +24,7 @@ msgid "URL"
 msgstr ""
 
 #: inc/payhere.php:43
-msgid "Information connect or Environment test. Url for real: https://onepay.vn/vpcpay/vpcpay.op, Url for test: https://mtf.onepay.vn/vpcpay/vpcpay.op"
+msgid "Information connect or Environment test. Url for real: https://www.payhere.lk/pay/checkout, Url for test: https://sandbox.payhere.lk/pay/checkout"
 msgstr ""
 
 #: inc/payhere.php:48 inc/payhere.php:51
@@ -32,7 +32,7 @@ msgid "Merchant ID"
 msgstr ""
 
 #: inc/payhere.php:56 inc/payhere.php:59
-msgid "Merchant Access Code"
+msgid "Merchant Secret"
 msgstr ""
 
 #: inc/payhere.php:64 inc/payhere.php:67
@@ -40,7 +40,7 @@ msgid "Security Secret"
 msgstr ""
 
 #: inc/payhere.php:84
-msgid "This payment only supports VND currency"
+msgid "This payment only supports USD & LKR currency"
 msgstr ""
 
 #: inc/payhere.php:282
