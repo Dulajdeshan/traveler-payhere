@@ -41,7 +41,16 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
                     'type' => 'on-off',
                     'std' => 'on',
                     'section' => 'option_pmgateway',
-                    'desc' => esc_html__( "Sandbox/Live Mode", 'traveler-onepay' ),
+                    'desc' => esc_html__( "Sandbox/Live Mode", 'traveler-payhere' ),
+                    'condition' => 'pm_gway_st_payhere_enable:is(on)'
+                ),
+                array(
+                    'id' => 'payhere_development',
+                    'label' => __('Development Mode', 'traveler-payhere'),
+                    'type' => 'on-off',
+                    'std' => 'on',
+                    'section' => 'option_pmgateway',
+                    'desc' => esc_html__( "Website Development(localhost)/Production Mode", 'traveler-payhere' ),
                     'condition' => 'pm_gway_st_payhere_enable:is(on)'
                 ),
                 array(
@@ -59,25 +68,9 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
                     'section' => 'option_pmgateway',
                     'desc' => __('Merchant Secret', 'traveler-payhere'),
                     'condition' => 'pm_gway_st_payhere_enable:is(on)'
-                ),
-                array(
-                    'id' => 'payhere_app_id',
-                    'label' => __('Business App Id', 'traveler-payhere'),
-                    'type' => 'text',
-                    'section' => 'option_pmgateway',
-                    'desc' => __('Help: https://support.payhere.lk/api-&-mobile-sdk/payhere-retrieval', 'traveler-payhere'),
-                    'condition' => 'pm_gway_st_payhere_enable:is(on)'
-                ),
-                array(
-                    'id' => 'payhere_app_secret',
-                    'label' => __('Business App Secret', 'traveler-payhere'),
-                    'type' => 'text',
-                    'section' => 'option_pmgateway',
-                    'desc' => __('Help: https://support.payhere.lk/api-&-mobile-sdk/payhere-retrieval', 'traveler-payhere'),
-                    'condition' => 'pm_gway_st_payhere_enable:is(on)'
-                ),
-                
-            
+                )
+
+
 
             );
         }
@@ -87,22 +80,26 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
             $this->url = st()->get_option('payhere_url', '');
             $this->merchant_id = st()->get_option('payhere_merchant_id', '');
             $this->merchant_secret = st()->get_option('payhere_merchant_secret', '');
-            $this->app_id = st()->get_option('payhere_app_id', '');
-            $this->app_secret = st()->get_option('payhere_app_secret','');
+            $this->development = st()->get_option('payhere_development', 'on');
             $this->sandbox = st()->get_option('payhere_sandbox', 'on');
+
 
             if ('on' == $this->sandbox) {
 
                 $this->checkout_url = 'https://sandbox.payhere.lk/pay/checkout';
                 $this->authorization_url = 'https://sandbox.payhere.lk/merchant/v1/oauth/token';
-                $this->retrieve_url = 'https://sandbox.payhere.lk/merchant/v1/payment/search?order_id=';
 
             } else {
 
                 $this->checkout_url = 'https://www.payhere.lk/pay/checkout';
                 $this->authorization_url = 'https://www.payhere.lk/merchant/v1/oauth/token';
-                $this->retrieve_url = 'https://www.payhere.lk/merchant/v1/payment/search?order_id=';
 
+            }
+
+            if('on' == $this->development) {
+                $this->bypass_validation = TRUE;
+            }else {
+                $this->bypass_validation = FALSE;
             }
         }
 
@@ -121,7 +118,7 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
         {
             $payment = STInput::post('st_payment_gateway');
 
-        
+
 
             $this->setDefaultParam();
 
@@ -173,7 +170,7 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
             $phone = get_post_meta($new_order, 'st_phone', true);
             $currency = TravelHelper::get_current_currency('name');
 
-           
+
             $params = array(
                 'merchant_id' => $this->merchant_id,
                 'return_url' => $this->get_return_url($new_order, true),
@@ -190,14 +187,14 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
                 'items' => get_the_title($service_id),
                 'currency' => $currency,
                 'amount' => $amount
-                
+
             );
 
-    
 
-            //$the_string = $this->merchant_id . $new_order . $format_amt . $currency . strtoupper(md5($this->merchant_secret));
 
-           // $params['hash'] = $this->generate_sha1_signature($the_string);
+            $the_string = $this->merchant_id . $new_order . $amount . $currency . strtoupper(md5($this->merchant_secret));
+
+             $params['hash'] = $this->generate_sha1_signature($the_string);
 
             return $params;
 
@@ -218,11 +215,7 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
             return strtoupper(md5($params));
         }
 
-        private function generate_authorization_code() {
-            $this->setDefaultParam();
 
-            return base64_encode($this->app_id.':'.$this->app_secret);
-        }
 
 
         function complete_purchase($order_id)
@@ -242,87 +235,8 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
             } else {
                 return ['status' => false];
             }
-           
 
 
-        }
-
-        function getPayhereOrderData($order_id, $access_token) {
-            $this->setDefaultParam();
-
-            $url = $this->retrieve_url.$order_id;
-
-            $curl = curl_init();
-
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => array(
-                'Authorization: Bearer '.$access_token,
-                'Content-Type: application/json'
-            ),
-            ));
-
-            $response = curl_exec($curl);
-
-            curl_close($curl);
-            
-            $jsonArrayResponse = json_decode($response, true);
-
-            if($jsonArrayResponse['status'] == 1) {
-                
-                if($jsonArrayResponse['data'][0]['status'] == 'RECEIVED') {
-                    return true;
-                }else {
-                    return false;
-                }
-                
-            }else {
-                return false;
-            }
-        
-        
-
-        }
-
-
-        function getAccessToken() {
-
-            $this->setDefaultParam();
-            $authorization_code = $this->generate_authorization_code();
-
-            $curl = curl_init();
-
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->authorization_url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=client_credentials',
-            CURLOPT_HTTPHEADER => array(
-                'Authorization: Basic '.$authorization_code,
-                'Content-Type: application/x-www-form-urlencoded'
-            ),
-            ));
-
-            $response = curl_exec($curl);
-
-            curl_close($curl);
-
-
-            $jsonArrayResponse = json_decode($response, true);
-
-            return $jsonArrayResponse['access_token'];
 
         }
 
@@ -331,13 +245,26 @@ if (!class_exists('ST_Payhere_Payment_Gateway')) {
         public function validate_response($order_id)
 
         {
-            $access_token = $this->getAccessToken();
-
-            $order_response = $this->getPayhereOrderData($order_id,$access_token);
-            if($order_response) {
+            if($this->bypass_validation) {
                 return true;
             }else {
-                return false;
+                $merchant_secret = $this->merchant_secret;
+
+                $merchant_id = $_REQUEST['merchant_id'];
+                $order_id = $_REQUEST['order_id'];
+                $payhere_amount = $_REQUEST['payhere_amount'];
+                $payhere_currency = $_REQUEST['payhere_currency'];
+                $status_code = $_REQUEST['status_code'];
+                $md5sig = $_REQUEST['md5sig'];
+
+
+                $local_md5sig = strtoupper (md5 ( $merchant_id . $order_id . $payhere_amount . $payhere_currency . $status_code . strtoupper(md5($merchant_secret)) ) );
+
+                if (($local_md5sig === $md5sig) AND ($status_code == 2) ){
+                        return true;
+                }else {
+                    return false;
+                }
             }
 
         }

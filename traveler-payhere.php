@@ -11,7 +11,7 @@ Plugin Name: Traveler PayHere
 Description: This plugin is used for Traveler Theme
 Version: 1.0
 Author: Dulaj Ariyaratne
-Author URI: https://dynolabs.net
+Author URI: https://github.com/Dulajdeshan
 License: GPLv2 or later
 Text Domain: traveler-payhere
 */
